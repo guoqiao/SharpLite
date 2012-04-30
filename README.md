@@ -46,7 +46,7 @@ PetaPoco 可以支持通过执行 T4 模版, 从数据库表格来生成对应�
 
 #### 自定义表名
 在django中定义models时, 默认的表名是app_model的格式. 这不太符合 C# 的命名习惯, 你可以通过 Meta 自定义:
-
+``
 # -*- coding: utf-8 -*-
 from django.db import models
 class User(models.Model):
@@ -54,7 +54,7 @@ class User(models.Model):
     password = models.CharField()
     class Meta:
         db_table = 'User'
-
+``
 #### 在开发环境中使用 SQLite     
 在 C# 中使用 SQLite, 你需要安装 SQLite 的 .NET 驱动.
 这里我使用的是 dotConnect for SQLite Standard (Free)
@@ -66,12 +66,13 @@ http://www.devart.com/dotconnect/sqlite/download.html
 在用户的电脑上, 你可以让她安装dotConnect for SQLite Standard (Free)来支持 SQLite
 不过, 让用户安装东西通常会带来反感或麻烦. 你也可以什么都不用装, 只需要:
 将下列 dll 与你的 exe 放在一起:
-Devart.Data.SQLite.dll
-Devart.Data.dll
-antlr.runtime.dll
-sqlite3.dll
-在你的 app.config 中添加数据提供程序配置:
+* Devart.Data.SQLite.dll
+* Devart.Data.dll
+* antlr.runtime.dll
+* sqlite3.dll
 
+在你的 app.config 中添加数据提供程序配置:
+``
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
     <configSections>
@@ -89,7 +90,7 @@ sqlite3.dll
     </system.data>
     
 </configuration>
-
+``
 这个配置很关键, 它能让你的程序找到上述 dll 中的数据提供程序.
 如果你没有配置它, 用户点击了你的exe后, 你的程序将运行不起来, 也没有任何错误提示. 
 如果不知道原因, 这会是一件相当让人抓狂的事. 
@@ -98,15 +99,13 @@ sqlite3.dll
 
 #### 建立数据连接
 你可以建立如下的类作为数据库的全局入口:
-
+``
 using PetaPoco;
-
 namespace SharpLite
 {
     class DbAccess
     {
         private static Database m_instance = null;
-
         public static Database GetInstance()
         {
             if (m_instance == null)
@@ -117,16 +116,17 @@ namespace SharpLite
         }
     }
 }
-
+``
 这里用到了 app.config 中定义的连接字符串属性, 也就要用到 System.configuration 模块.
 你需要在 Preferences 添加对它的应用, 否则编译会无法通过.
 
 #### PetaPoco 的编译条件
 PetaPoco 中用到了 C# 的动态特性, 例如 var 关键字(C# 3.0 引入), 以及 Dynamic 空间(C# 4.0 引入).
 像我使用的是 .NET 3.5, 支持 var 关键字没问题, Dynamic 空间则不行. 编译时出现如下错误:
+``
 Error	1	The type or namespace name 'Dynamic' does not exist in the namespace 'System' (are you missing an assembly reference?)	
 D:\workspace\SharpLite\SharpLite\PetaPoco.cs	1535	45	SharpLite
-
+``
 好在我并不需要为此升级到 .NET 4, PetaPoco 代码中提供了条件编译开关, 用以避免使用 Dynamic 特性.
 你只需在项目属性 -> Build -> General -> Confitional compilation symbols 后面的文本框中加入 PETAPOCO_NO_DYNAMIC 即可.
 注意 Debug 和 Release 要分别设置.
